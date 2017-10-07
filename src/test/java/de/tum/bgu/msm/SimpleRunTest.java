@@ -20,18 +20,18 @@ import java.util.ResourceBundle;
 
 public class SimpleRunTest {
 
-    private MitoModel model;
+    ResourceBundle bundle;
 
     @Before
     public void setupTest() {
-        ResourceBundle bundle = MitoUtil.createResourceBundle("./testInput/test.properties");
+        bundle = MitoUtil.createResourceBundle("./testInput/test.properties");
         Resources.INSTANCE.setResources(bundle);
-        model = new MitoModel(bundle);
-        model.setBaseDirectory("./testInput/");
     }
 
     @Test
     public final void fedInitialization() {
+        MitoModel model = new MitoModel(bundle);
+        model.setBaseDirectory("./testInput/");
 
         Map<Integer, Zone> zones = new HashMap();
         zones.put(1, new Zone(1));
@@ -51,10 +51,18 @@ public class SimpleRunTest {
 
         InputFeed feed = new InputFeed(zones, autoTravelTimes, transitTravelTimes, households);
         model.feedData(feed);
-        testSetInput();
+        testSetInput(model);
     }
 
-    private void testSetInput() {
+    @Test
+    public void standalone() {
+        MitoModel model = new MitoModel(bundle);
+        model.setBaseDirectory("./testInput/");
+        model.initializeStandAlone();
+        testSetInput(model);
+    }
+
+    private void testSetInput(MitoModel model) {
         Assert.assertEquals(1, model.getTravelDemand().getZones().size());
         Assert.assertEquals(1, model.getTravelDemand().getHouseholds().size());
         Assert.assertEquals(2, model.getTravelDemand().getPersons().size());
